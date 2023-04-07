@@ -1,0 +1,33 @@
+version: '3'
+services:
+  db:
+    image: postgres:13
+    container_name: shm-db
+    volumes:
+      - ./tmp/postgres_data:/var/lib/postgresql/postgresql/data
+    command:
+      "postgres -c 'max_connections=500'"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+  shm:
+    build: .
+    command: "./bin/rails server"
+    environment:
+      - RAILS_ENV=${RAILS_ENV}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWASSWORD=${POSTGRES_PASSWORD}
+      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+    volumes:
+      - ./tmp/app_storage:/rails/storage
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+networks:
+  shm_default:
